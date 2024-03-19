@@ -1,5 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, Button, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
 
@@ -9,74 +8,43 @@ export default function App() {
     const uri = { uri: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3' };
     const localUri = require('./assets/sfx/sound.wav');
 
-    // load a sound
-    const loadSound = async (uri) => {
+    const [sound, setSound] = useState();
+    const [sound_, setSound_] = useState();
 
-        const { sound } = await Audio.Sound.createAsync(localUri);
-        setMyPBO(sound);
-        setPlaybackStatus("Loaded");
-    }
-    // play a sound
-    const playSound = async () => {
-        try {
-            await myPBO.playAsync();
-            setPlaybackStatus("Playing");
-        } catch (e) {
-            console.log(e)
-        };
-    }
+    async function playSound(num) {
+        if (num == 1) {
+            console.log('Loading Sound');
+            const { sound } = await Audio.Sound.createAsync(uri)
+            setSound(sound);
 
-    // pause a sound
-    const pauseSound = async () => {
-        await myPBO.pauseAsync();
-        setPlaybackStatus("Paused");
-    }
+            console.log('Playing Sound');
+            await sound.playAsync();
+        }
+        if (num == 2) {
+            console.log('Loading Sound');
+            const { sounds } = await Audio.Sound.createAsync(localUri)
+            setSound_(sounds);
 
-    // stop a sound
-    const stopSound = async () => {
-        await myPBO.stopAsync();
-        setPlaybackStatus("Stopped");
-    }
-    // unload a sound
-    const unloadSound = async () => {
-        await myPBO.unloadAsync();
-        setPlaybackStatus("Unloaded");
+            console.log('Playing Sound');
+            await sound_.playAsync();
+        }
+  
     }
 
     useEffect(() => {
-        loadSound(uri);
-        return myPBO
+        return sound && sound_ 
             ? () => {
-                unloadSound
-                setPlaybackStatus("Unloaded")
+                console.log('Unloading Sound');
+                sound.unloadAsync();
+                sound_.unloadAsync();
             }
             : undefined;
-
-    }, [])
+    }, [sound]);
 
     return (
         <View style={styles.container}>
-            <Pressable
-                style={styles.button}
-                onPress={(playbackStatus == "Playing") ? pauseSound : playSound}
-            >
-                <Text style={styles.buttonText}>
-                    {(playbackStatus == "Playing") ?
-                        "Pause"
-                        : "Play"
-                    }
-                </Text>
-            </Pressable>
-            <Pressable
-                style={styles.button}
-                onPress={stopSound}
-            >
-                <Text style={styles.buttonText}>
-                    Stop
-                </Text>
-            </Pressable>
-            <Text style={styles.buttonText}>Status: {playbackStatus}</Text>
-            <StatusBar style="auto" />
+            <Button title="Play Sound1" onPress={() => playSound(1)} />
+            <Button title="Play Sound2" onPress={() => playSound(2)} />
         </View>
     );
 }
@@ -86,7 +54,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
+
     },
     button: {
         backgroundColor: 'lightgreen',
@@ -94,7 +63,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 2,
         borderRadius: 7,
-        margin: 10,
+        marginBottom: 10,
         padding: 10,
     },
     buttonText: {
