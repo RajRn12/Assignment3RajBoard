@@ -11,40 +11,37 @@ export default function App() {
     const [sound, setSound] = useState();
     const [sound_, setSound_] = useState();
 
+    const [soundList, setSoundList] = useState([])
+
+    const loadSoundList = () => {
+        loadSound(uri, 0)
+        loadSound(localUri, 1)
+    }
+    const loadSound = async (ur, num) => {
+        const { sound } = await Audio.Sound.createAsync(ur);
+        let newA = { ...soundList }
+        newA[num] = sound;
+        setSoundList(newA)
+        console.log(soundList[num]);
+    }
+
     async function playSound(num) {
-        if (num == 1) {
-            console.log('Loading Sound');
-            const { sound } = await Audio.Sound.createAsync(uri)
-            setSound(sound);
-
-            console.log('Playing Sound');
-            await sound.playAsync();
-        }
-        if (num == 2) {
-            console.log('Loading Sound');
-            const { sounds } = await Audio.Sound.createAsync(localUri)
-            setSound_(sounds);
-
-            console.log('Playing Sound');
-            await sound_.playAsync();
-        }
-  
+            if (soundList[num] != null) {
+           
+                console.log('Playing Sound');
+                await soundList[num].playAsync();
+            }
+        
     }
 
     useEffect(() => {
-        return sound && sound_ 
-            ? () => {
-                console.log('Unloading Sound');
-                sound.unloadAsync();
-                sound_.unloadAsync();
-            }
-            : undefined;
-    }, [sound]);
+        loadSoundList()
+    }, [soundList.length]);
 
     return (
         <View style={styles.container}>
-            <Button title="Play Sound1" onPress={() => playSound(1)} />
-            <Button title="Play Sound2" onPress={() => playSound(2)} />
+            <Button title="Play Sound1" onPress={() => playSound(0)} />
+            <Button title="Play Sound2" onPress={() => playSound(1)} />
         </View>
     );
 }
