@@ -1,11 +1,19 @@
-import { Pressable, StyleSheet, Text, Button, View } from 'react-native';
+/**
+ * File     -   App.js 
+ * Author   -   Raj Rai
+ * Credit   -   N/A
+ * Date     -   N/A
+ **/
+
+import { Pressable, StyleSheet, Text, Button, View, FlatList, Image, Alert} from 'react-native';
 import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
+import guide from './images/question.jpg';
+import styles from './styles/page-styles';
 
 export default function App() {
     const [playbackStatus, setPlaybackStatus] = useState("Unloaded");
     const [myPBO, setMyPBO] = useState(null);
-
 
     // Sounds
     const theme = require('./assets/sfx/theme.mp3');
@@ -15,86 +23,105 @@ export default function App() {
     const flute = require('./assets/sfx/Flute.wav');
     
     // Sound List
-    const [soundList, setSoundList] = useState([])
+    const [soundList, setSoundList] = useState([
+        { music: null, id: 0, name: '', play: false},
+        { music: null, id: 1, name: '', play: false },
+        { music: null, id: 2, name: '', play: false },
+        { music: null, id: 3, name: '', play: false },
+        { music: null, id: 4, name: '', play: false }
+    ])
 
     const loadSoundList = () => {
-        loadSound(theme, 0)
-        loadSound(tabla, 1)
-        loadSound(mambo, 2)
-        loadSound(harmonium, 3)
-        loadSound(flute, 4)
+        loadSound(theme, 0, 'Theme Music')
+        loadSound(tabla, 1, 'Tabla Beat')
+        loadSound(mambo, 2, 'Mambo Time')
+        loadSound(harmonium, 3, 'Harmonium')
+        loadSound(flute, 4, 'Flute')
       
     }
-    const loadSound = async (ur, num) => {
+
+    const loadSound = async (ur, num, name_) => {
         const { sound } = await Audio.Sound.createAsync(ur);
         let newA = { ...soundList }
-        console.log(soundList[num]);
-        if (soundList[num] == null){
-        newA[num] = sound;
-        setSoundList(newA)
+        console.log(soundList[num].music);
+        if (soundList[num].music == null) {
+            newA[num].music = sound; newA[num].id = num; newA[num].name = name_;
+            setSoundList(newA)
         }
-        console.log(soundList[num]);
+        console.log(soundList[num].music);
     }
+
+    // whoPay is used to stop current playing sound for a new sound 
     const [whoPlay, setWhoPlay] = useState(null);
+    const playSound = async (num) => {
+        try {
+            console.log('Playing Sound', soundList[num].name);
+            await soundList[num].music.playAsync();
+            let playA= { ...soundList }
+            playA[num].play = true;
+            setSoundList(playA)
 
-
-        const playSound = async (num) => {
-        try {  
-                if(soundList[num] == null){
-                    loadSoundList()
-                    playSound(num);
-                  }
-                 if (soundList[num] != null || whoPlay == num || whoPlay == null) {
-                        console.log('Playing Sound');
-                        await soundList[num].playAsync();
-                        setWhoPlay(num)
-                  }
-                if(num != whoPlay && whoPlay != null && soundList[num] != null){
-                    await soundList[whoPlay].stopAsync();
-                    console.log('Playing Sound');
-                    await soundList[num].playAsync();
-                    setWhoPlay(num)
-                } 
         } catch (e) {
             console.log(e)
         };
      }
+
+    const stopSound = async (num) => {
+        console.log('Stopped Sound', soundList[num].name)
+        await soundList[num].music.stopAsync();
+        let playA = { ...soundList }
+        playA[num].play = false;
+        setSoundList(playA)
+    }
+    // unload a sound
+    const unloadSound = async () => {
+        await myPBO.unloadAsync();
+        setPlaybackStatus("Unloaded");
+    }
 
     useEffect(() => {
         loadSoundList()
 
     }, [soundList.length]);
 
+
+    // Info
+    const showGuide = () => {
+        Alert.alert("Info:",
+            "Press a Button to play Sound. Press Again To Pause. You can Stop to Start from beginning. You can Repeat Sound")
+    }
+
+    const [showRecord, setShowRecord] = useState(true);
     return (
         <View style={styles.container}>
-            <Button title="Play Theme" onPress={() => playSound(0)} />
-            <Button title="Play Tabla" onPress={() => playSound(1)} />
-            <Button title="Play Mambo" onPress={() => playSound(2)} />
-            <Button title="Play Harmonium" onPress={() => playSound(3)} />
-            <Button title="Play Flute" onPress={() => playSound(4)} />
-            
+           
+                <View style={styles.topView}>
+                    <Text style={styles.title}> Audio Samples</Text>
+                    <Pressable style={{ width: 20 }} onPress={() => showGuide()}><Image source={guide} style={styles.guide} /></Pressable>
+                </View>
+           
+            <View style={styles.secondView}>
+                <View style={styles.sampleView}>
+                    <Pressable style={styles.button} onPress={() => (soundList[0].play == false) ? playSound(0) : stopSound(0)}><Text>{soundList[0].name}</Text></Pressable>
+                    <Pressable style={styles.button} onPress={() => (soundList[1].play == false) ? playSound(1) : stopSound(1)}><Text>{soundList[1].name}</Text></Pressable>
+                    <Pressable style={styles.button} onPress={() => (soundList[2].play == false) ? playSound(2) : stopSound(2)}><Text>{soundList[2].name}</Text></Pressable>
+                    <Pressable style={styles.button} onPress={() => (soundList[3].play == false) ? playSound(3) : stopSound(3)}><Text>{soundList[3].name}</Text></Pressable>
+                    <Pressable style={styles.button} onPress={() => (soundList[4].play == false) ? playSound(4) : stopSound(4)}><Text>{soundList[4].name}</Text></Pressable>
+                </View>
+            </View>
+
+            <Pressable
+                style={styles.recordPress} onPress={() => (showRecord == true) ? setShowRecord(false) : setShowRecord(true)}>
+                <Text style={styles.recordText }> {(showRecord == true) ? "Hide Recordings" : "Show Recordings"}</Text>
+            </Pressable>
+            {showRecord?
+                <View style={styles.ThirdView}>
+                    <View style={styles.sampleView}>
+                        <Pressable><Text>Play {soundList[0].name}</Text></Pressable>
+                    </View>
+                </View>
+                : null
+            }
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-
-    },
-    button: {
-        backgroundColor: 'lightgreen',
-        borderBlockColor: 'black',
-        borderStyle: 'solid',
-        borderWidth: 2,
-        borderRadius: 7,
-        marginBottom: 10,
-        padding: 10,
-    },
-    buttonText: {
-        fontSize: 24,
-    }
-});
