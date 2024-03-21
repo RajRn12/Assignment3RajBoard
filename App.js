@@ -1,7 +1,7 @@
 /**
  * File     -   App.js 
  * Author   -   Raj Rai
- * Credit   -   N/A
+ * Credit   -   Raj Rai
  * Date     -   N/A
  **/
 
@@ -24,31 +24,48 @@ export default function App() {
     
     // Sound List
     const [soundList, setSoundList] = useState([
-        { music: null, id: 0, name: '', play: false},
-        { music: null, id: 1, name: '', play: false },
-        { music: null, id: 2, name: '', play: false },
-        { music: null, id: 3, name: '', play: false },
-        { music: null, id: 4, name: '', play: false }
+        { music: null, id: null, name: '', play: false, bgColor: ''},
+        { music: null, id: null, name: '', play: false, bgColor: '' },
+        { music: null, id: null, name: '', play: false, bgColor: '' },
+        { music: null, id: null, name: '', play: false, bgColor: '' },
+        { music: null, id: null, name: '', play: false, bgColor: '' }
     ])
+    //let x = 0;
+    //const [random, setRandom] = useState(null);
+    //const ranNum = () => {
+    //    console.log("Hllo")
+    //    x = Math.floor(Math.random() * 5);
+    //    let i = 0;
+    //    while (i < soundList.length) {
+    //        if (soundList[x].music == null && random != x) {
+    //            setRandom(x);
+    //            loadSoundList(x)
+    //            chooseColor(x)
+    //        }
+    //        else {
+    //            x = Math.floor(Math.random() * 5);
 
+    //        }
+    //        i++
+    //    }
+    //}
     const loadSoundList = () => {
-        loadSound(theme, 0, 'Theme Music')
-        loadSound(tabla, 1, 'Tabla Beat')
-        loadSound(mambo, 2, 'Mambo Time')
-        loadSound(harmonium, 3, 'Harmonium')
-        loadSound(flute, 4, 'Flute')
-      
+        loadSound(theme, 0)
+        loadSound(tabla, 1)
+        loadSound(mambo, 2)
+        loadSound(harmonium, 3)
+        loadSound(flute, 4) 
     }
 
-    const loadSound = async (ur, num, name_) => {
+    const loadSound = async (ur, num) => {
         const { sound } = await Audio.Sound.createAsync(ur);
+        await sound.setIsLoopingAsync(true)
         let newA = { ...soundList }
-        console.log(soundList[num].music);
-        if (soundList[num].music == null) {
-            newA[num].music = sound; newA[num].id = num; newA[num].name = name_;
+        if (soundList[num].music == null && soundList[num].id == null) {
+            newA[num].music = sound; newA[num].id = num;
             setSoundList(newA)
+            chooseColor(num)
         }
-        console.log(soundList[num].music);
     }
 
     // whoPay is used to stop current playing sound for a new sound 
@@ -79,16 +96,40 @@ export default function App() {
         setPlaybackStatus("Unloaded");
     }
 
+
+    // Set BG Colors
+    const [dimColors, setDimColors] = useState(['rgba(255, 0, 0, 0.3)', 'rgba(0,255,0,0.3)', 'rgba(0,0,255,0.3)', 'rgba(0, 255, 242, 0.3)', 'rgba(255,255,0,0.3)'])
+    function chooseColor(num) {
+        if (soundList[num].music != null && soundList[num].bgColor == '') {
+            let color = { ...soundList }
+            color[num].bgColor = dimColors[num];
+            setSoundList(color)
+        }
+    }
+
+    const [fullColors, setFullColors] = useState(['rgba(255, 0, 0, 1)', 'rgba(0,255,0, 1)', 'rgba(0,0,255, 1)', 'rgba(0, 255, 242, 0.8)', 'rgba(255,255,0, 1)'])
+    function lightUp(num) {
+        if (soundList[num].music != null && soundList[num].bgColor != '') {
+            let color = { ...soundList }
+            color[num].bgColor = fullColors[num];
+            setSoundList(color)
+        }
+        if (soundList[num].play == true) {
+            let color = { ...soundList }
+            color[num].bgColor = dimColors[num];
+            setSoundList(color)
+        }
+    }
+
     useEffect(() => {
         loadSoundList()
-
     }, [soundList.length]);
 
 
     // Info
     const showGuide = () => {
         Alert.alert("Info:",
-            "Press a Button to play Sound. Press Again To Pause. You can Stop to Start from beginning. You can Repeat Sound")
+            "Press a Button to play Sound. Press Again To Stop to Start from Beginning. Sounds are always Repeated.")
     }
 
     const [showRecord, setShowRecord] = useState(true);
@@ -102,11 +143,11 @@ export default function App() {
            
             <View style={styles.secondView}>
                 <View style={styles.sampleView}>
-                    <Pressable style={styles.button} onPress={() => (soundList[0].play == false) ? playSound(0) : stopSound(0)}><Text>{soundList[0].name}</Text></Pressable>
-                    <Pressable style={styles.button} onPress={() => (soundList[1].play == false) ? playSound(1) : stopSound(1)}><Text>{soundList[1].name}</Text></Pressable>
-                    <Pressable style={styles.button} onPress={() => (soundList[2].play == false) ? playSound(2) : stopSound(2)}><Text>{soundList[2].name}</Text></Pressable>
-                    <Pressable style={styles.button} onPress={() => (soundList[3].play == false) ? playSound(3) : stopSound(3)}><Text>{soundList[3].name}</Text></Pressable>
-                    <Pressable style={styles.button} onPress={() => (soundList[4].play == false) ? playSound(4) : stopSound(4)}><Text>{soundList[4].name}</Text></Pressable>
+                    <Pressable style={[styles.button, effect.glow, { backgroundColor: soundList[0].bgColor }]} onPress={() => { (soundList[0].play == false) ? playSound(0) : stopSound(0); lightUp(0) }} />
+                    <Pressable style={[styles.button, effect.glow, { backgroundColor: soundList[1].bgColor }]} onPress={() => { (soundList[1].play == false) ? playSound(1) : stopSound(1); lightUp(1)}} />
+                    <Pressable style={[styles.button, effect.glow, { backgroundColor: soundList[2].bgColor }]} onPress={() => { (soundList[2].play == false) ? playSound(2) : stopSound(2); lightUp(2) }} />
+                    <Pressable style={[styles.button, effect.glow, { backgroundColor: soundList[3].bgColor }]} onPress={() => { (soundList[3].play == false) ? playSound(3) : stopSound(3); lightUp(3) }} />
+                    <Pressable style={[styles.button, effect.glow, { backgroundColor: soundList[4].bgColor }]} onPress={() => { (soundList[4].play == false) ? playSound(4) : stopSound(4); lightUp(4) }} />
                 </View>
             </View>
 
@@ -117,7 +158,7 @@ export default function App() {
             {showRecord?
                 <View style={styles.ThirdView}>
                     <View style={styles.sampleView}>
-                        <Pressable><Text>Play {soundList[0].name}</Text></Pressable>
+                        <Pressable style={styles.button} />
                     </View>
                 </View>
                 : null
@@ -125,3 +166,12 @@ export default function App() {
         </View>
     );
 }
+
+const effect = StyleSheet.create({
+    glow: {
+        borderStyle: 'solid',
+        opacity: 3,
+        borderRadius: 10,
+        borderBlockColor: 'gold',
+    }
+})

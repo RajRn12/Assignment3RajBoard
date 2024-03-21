@@ -7,17 +7,21 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'orange',
+        backgroundColor: 'lightblue',
         alignItems: 'center',
-        justifyContent: 'center'
+        height: 1000,
     },
 
     topView: {
         flexDirection: 'row',
+        marginTop: 35
     },
     title: {
-        color: 'blue',
+        textShadowColor: 'rgba(255, 0, 0, 0.8)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 10,
         fontWeight: 'bold',
+        color:'blue',
         fontSize: 18,
         marginBottom: 7,
     },
@@ -25,26 +29,26 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         marginLeft: 5,
-        marginTop: 3
+        marginTop: 3 
     },
 
     secondView: {
-        backgroundColor: 'white',
+        backgroundColor: 'lightyellow',
         borderWidth: 5,
         borderRadius: 10,
         borderStyle: 'dashed',
-        paddingLeft: 150,
-        paddingRight: 150,
-        marginBottom: 50,
-        borderBlockColor: 'red',
+        borderBlockColor: 'black',
+        marginBottom: 10,
     },
     sampleView: {
-        marginTop: 10,
-        marginBottom:10,
+        paddingLeft: 145,
+        paddingRight: 145,
+        marginBottom: 50,
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        alignItems:'center'
+        width: 350,
+        justifyContent:'center',
+        marginTop: 20,
+        marginBottom: 20,
     },
 
     recordPress: {
@@ -64,27 +68,23 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
     ThirdView: {
-        backgroundColor: 'white',
+        backgroundColor: 'lightpink',
         borderWidth: 5,
         borderRadius: 10,
         borderStyle: 'dashed',
-        paddingLeft: 150,
-        paddingRight: 150,
-        marginBottom: 160,
-        borderBlockColor: 'red',
+        borderBlockColor: 'black',
     },
-
+    scrollView: {
+        
+    },
     button: {
-        backgroundColor: 'lightgreen',
         borderBlockColor: 'black',
         borderStyle: 'solid',
-        width: 100,
-        height: 35,
+        width: 60,
+        height: 50,
         borderWidth: 2,
         borderRadius: 7,
-        padding: 2,
-        marginTop: 5,
-        marginRight: 220,
+        marginLeft:5,
     },
     buttonText: {
         fontSize: 24,
