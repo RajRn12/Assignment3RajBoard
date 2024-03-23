@@ -1,9 +1,8 @@
 /**
  * File   -  page-styles.js
  * Author - Raj Rai
- */
+ **/
 import { StyleSheet } from 'react-native';
-
 
 const styles = StyleSheet.create({
     container: {
@@ -25,6 +24,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginBottom: 7,
     },
+    titleTwo: {
+        textShadowColor: 'rgba(255, 0, 0, 1)',
+        textShadowOffset: { width:5, height: 1 },
+        textShadowRadius: 10,
+        fontWeight: 'bold',
+        color: 'yellow',
+        fontSize: 18,
+        marginBottom: 7,
+    },
+
     guide: {
         width: 20,
         height: 20,
@@ -85,10 +94,14 @@ const styles = StyleSheet.create({
         height: 50,
         borderWidth: 2,
         borderRadius: 7,
-        marginLeft:5,
+        marginLeft: 5,
+        justifyContent: 'center'
     },
     buttonText: {
-        fontSize: 24,
+        fontSize: 10,
+        fontWeight: 'bold',
+        textAlign: 'center',
+
     },
     item: {
         marginTop: 24,
