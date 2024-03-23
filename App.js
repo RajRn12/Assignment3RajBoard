@@ -159,6 +159,11 @@ export default function App() {
                 <View style={styles.ThirdView}>
                     <View style={styles.sampleView}>
                         <Pressable style={styles.button} />
+                        <Pressable style={styles.button} />
+                        <Pressable style={styles.button} />
+                        <Pressable style={styles.button} />
+                        <Pressable style={styles.button} />
+                        <Pressable style={styles.button} />
                     </View>
                 </View>
                 : null

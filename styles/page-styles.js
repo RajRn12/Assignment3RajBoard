@@ -41,10 +41,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     sampleView: {
-        paddingLeft: 145,
-        paddingRight: 145,
+        //paddingLeft: 145,
+        //paddingRight: 145,
         marginBottom: 50,
         flexDirection: 'row',
+        flexWrap: 'wrap',
         width: 350,
         justifyContent:'center',
         marginTop: 20,
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
     button: {
         borderBlockColor: 'black',
         borderStyle: 'solid',
-        width: 60,
+        width: '15%',
         height: 50,
         borderWidth: 2,
         borderRadius: 7,
