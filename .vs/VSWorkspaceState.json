@@ -1,7 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\assets",
+    "\\assets\\sfx",
+    "\\images",
+    "\\styles"
   ],
-  "SelectedNode": "\\C:\\Users\\s0546926\\Source\\Repos\\Assignment3RajBoard",
+  "SelectedNode": "\\App.js",
   "PreviewInSolutionExplorer": false
 }
