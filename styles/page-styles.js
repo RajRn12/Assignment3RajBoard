@@ -13,7 +13,13 @@ const styles = StyleSheet.create({
 
     topView: {
         flexDirection: 'row',
-        marginTop: 35
+        marginBottom: 10,
+        marginTop:35,
+    },
+    secondTopView: {
+        flexDirection: 'row',
+        marginBottom: 10,
+
     },
     title: {
         textShadowColor: 'rgba(255, 0, 0, 0.8)',
@@ -22,7 +28,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color:'blue',
         fontSize: 18,
-        marginBottom: 7,
+
     },
     titleTwo: {
         textShadowColor: 'rgba(255, 0, 0, 1)',
@@ -31,7 +37,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'yellow',
         fontSize: 18,
-        marginBottom: 7,
     },
 
     guide: {
@@ -47,12 +52,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderStyle: 'dashed',
         borderBlockColor: 'black',
-        marginBottom: 10,
+        marginBottom: 20,
     },
     sampleView: {
-        //paddingLeft: 145,
-        //paddingRight: 145,
-        marginBottom: 50,
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: 350,
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
     },
 
     recordPress: {
-        backgroundColor: 'cyan',
+        backgroundColor: 'yellow',
         borderBlockColor: 'black',
         borderStyle: 'solid',
         height: 30,
@@ -78,15 +80,20 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
     ThirdView: {
-        backgroundColor: 'lightpink',
+        backgroundColor: 'pink',
         borderWidth: 5,
         borderRadius: 10,
         borderStyle: 'dashed',
         borderBlockColor: 'black',
+        marginBottom: 10,
     },
-    scrollView: {
-        
+    recordView: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        width: 350,
+        justifyContent: 'center',
     },
+
     button: {
         borderBlockColor: 'black',
         borderStyle: 'solid',
@@ -97,17 +104,7 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         justifyContent: 'center'
     },
-    buttonText: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        textAlign: 'center',
 
-    },
-    item: {
-        marginTop: 24,
-        padding: 30,
-        backgroundColor: 'pink',
-        fontSize: 24
-    }
+
 });
 export default styles;
