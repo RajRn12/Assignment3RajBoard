@@ -1,11 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\assets",
-    "\\assets\\sfx",
-    "\\images",
-    "\\styles"
+    ""
   ],
-  "SelectedNode": "\\images",
+  "SelectedNode": "\\App.js",
   "PreviewInSolutionExplorer": false
 }

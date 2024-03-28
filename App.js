@@ -316,18 +316,17 @@ export default function App() {
     function lightUpRecorded(id) {
         let i = 0;
         let newBright = { ...recordedList }
-        while (i < recordedList.length) {
-            if (recordedList[id].sound != null && recordedList[id].bgColor == dimColors[id]) {
-                newColor[id].bgColor = fullColors[id];
-                setRecordedList[newBright];
+        while (i < dimColors.length) {
+            if (recordedList[id].sound != null && recordedList[id].play == true && recordedList[id].bgColor == dimColors[i]) {
+                newBright[id].bgColor = fullColors[id]
+                setRecordedList(newBright);
             }
             i++;
         }
-        forceUpdate(f => f + 1)
+        forceUpdate(f => f + 1);
     }
 
     const playRecording = async (id) => {
-        lightUpRecorded(id)
         let newRPlay = { ...recordedList }
         if (newRPlay[id].sound != null && newRPlay[id].play == false) {
             console.log("Playing Recording", id)
@@ -387,7 +386,7 @@ export default function App() {
                             ({ id, uri, play}) => {
                                 return (
                                     <View key={id} style={masterStyles.recordView}>
-                                        <Pressable style={[masterStyles.button, { backgroundColor: recordedList[id].bgColor }]} onPress={() => { (recordedList[id].play == false) ? loadRecording(uri, id) : stopPlayingRecording(id) }} onLongPress={() => deleteRecord(id)}></Pressable>
+                                        <Pressable style={[masterStyles.button, { backgroundColor: recordedList[id].bgColor }]} onPress={() => { (recordedList[id].play == false) ? loadRecording(uri, id) : stopPlayingRecording(id); lightUpRecorded(id) }} onLongPress={() => deleteRecord(id)}></Pressable>
                                     </View>
                                 )
                             })
