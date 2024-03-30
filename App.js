@@ -21,6 +21,8 @@ export default function App() {
     // for recording
     const [recording, setRecording] = useState(null);
     const [permissionsResponse, requestPermission] = Audio.usePermissions();
+    // limit on recording
+    const [limit, setLimit] = useState();
 
     // connect to the database
     useEffect(() => {
@@ -36,7 +38,7 @@ export default function App() {
             }
         }
         else {
-            db = SQLite.openDatabase('record3.db')
+            db = SQLite.openDatabase('record03.db')
         }
         setDb(db);
         console.log(db);
@@ -164,7 +166,7 @@ export default function App() {
         }
         if (num == 2) {
             Alert.alert("Info:",
-                "Colored Box means there is recorded sound for play and they are always repeated. Dimmed color means Stopped and Brightened color means Playing. Long Pressing the Box will delete the Box and its recording.")
+                "Colored Box means there is recorded sound for play and they are always repeated. Long Pressing the Box will delete the Box and its recording. You can only see 20 recorded boxes")
         }
     }
 
@@ -177,23 +179,20 @@ export default function App() {
             : undefined;
     }, [soundList.music])
 
-    // limit on recording
-    const [limit, setLimit] = useState(0);
     // recordings
     const startRecording = async () => {
         try {
-            if (limit < 15) {
-            // request permission to use the mic
-            if (permissionsResponse.status !== 'granted') {
-                console.log('Requesting permissions.');
-                await requestPermission();
-            }
-            console.log('Permission is ', permissionsResponse.status);
+                // request permission to use the mic
+                if (permissionsResponse.status !== 'granted') {
+                    console.log('Requesting permissions.');
+                    await requestPermission();
+                }
+                console.log('Permission is ', permissionsResponse.status);
 
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: true,
-                playsInSilentModeIOS: true,
-            });
+                await Audio.setAudioModeAsync({
+                    allowsRecordingIOS: true,
+                    playsInSilentModeIOS: true,
+                });
 
                 console.log('Starting recording...');
                 const { recording } = await Audio.Recording.createAsync(
@@ -201,10 +200,6 @@ export default function App() {
                 );
                 setRecording(recording);
                 console.log('...recording');
-            }
-            else {
-                Alert.alert("You have reached the limit: 15 recordings!");
-            }
         }
         catch (errorEvent) {
             console.error('Failed to startRecording(): ', errorEvent);
@@ -221,8 +216,7 @@ export default function App() {
 
             // save uri
             addRecording(uri)
-            setLimit(l => l + 1);
-            console.log("limit", limit);
+
             // forget the recording object
             setRecording(undefined);
 
@@ -247,11 +241,13 @@ export default function App() {
     const [recordings, setRecordings] = useState([]);
     const [updateRecordings, forceUpdate] = useState(0);
 
+    // database starts from id value of 1 -
     const [recordedList, setRecordedList] = useState([
-        { id: 1, sound: null, play: false, bgColor: '' }, { id: 2, sound: null, play: false, bgColor: '' }, { id: 3, sound: null, play: false, bgColor: '' }, { id: 4, sound: null, play: false, bgColor: '' }, { id: 5, sound: null, play: false, bgColor: '' },
-        { id: 6, sound: null, play: false, bgColor: '' }, { id: 7, sound: null, play: false, bgColor: '' }, { id: 8, sound: null, play: false, bgColor: '' }, { id: 9, sound: null, play: false, bgColor: '' }, { id: 10, sound: null, play: false, bgColor: '' },
-        { id: 11, sound: null, play: false, bgColor: '' }, { id: 12, sound: null, play: false, bgColor: '' }, { id: 13, sound: null, play: false, bgColor: '' }, { id: 14, sound: null, play: false, bgColor: '' }, { id: 15, sound: null, play: false, bgColor: '' },
-        { id: 16, sound: null, play: false, bgColor: '' },
+        { id: 0, sound: null, play: false, bgColor: '' }, { id: 1, sound: null, play: false, bgColor: '' }, { id: 2, sound: null, play: false, bgColor: '' }, { id: 3, sound: null, play: false, bgColor: '' }, { id: 4, sound: null, play: false, bgColor: '' },
+        { id: 5, sound: null, play: false, bgColor: '' }, { id: 6, sound: null, play: false, bgColor: '' }, { id: 7, sound: null, play: false, bgColor: '' }, { id: 8, sound: null, play: false, bgColor: '' }, { id: 9, sound: null, play: false, bgColor: '' },
+        { id: 10, sound: null, play: false, bgColor: '' }, { id: 11, sound: null, play: false, bgColor: '' }, { id: 12, sound: null, play: false, bgColor: '' }, { id: 13, sound: null, play: false, bgColor: '' }, { id: 14, sound: null, play: false, bgColor: '' },
+        { id: 15, sound: null, play: false, bgColor: '' }, { id: 16, sound: null, play: false, bgColor: '' }, { id: 17, sound: null, play: false, bgColor: '' }, { id: 18, sound: null, play: false, bgColor: '' }, { id: 19, sound: null, play: false, bgColor: '' },
+        { id: 20, sound: null, play: false, bgColor: '' },
     ])
 
     //update when the database  changes [db, updateRecordings]
@@ -260,7 +256,7 @@ export default function App() {
             db.transaction(
                 (tx) => {
                     tx.executeSql(
-                        "select * from recordings",
+                        "select * from recordings limit 20",
                         [],
                         (_, { rows }) => setRecordings(rows._array),
                         (_, error) => console.log(error)
@@ -271,7 +267,18 @@ export default function App() {
             )
         }
         chooseRecordColor()
+        ensureLimit();
     }, [db, updateRecordings])
+
+    const ensureLimit = () => {
+        let i = 0;
+        while (i < recordedList.length) {
+            if (recordedList[i].sound != null) {
+                setLimit(i);
+            }
+            i++;
+        }
+    }
 
     const addRecording = (uri) => {
             db.transaction(
@@ -302,6 +309,9 @@ export default function App() {
             (_, error) => console.log('deleteRecord() failed: ', error),
             forceUpdate(f => f + 1)
         )
+        let newR = { ...recordedList }
+        newR[id].sound = null; newR[id].play = false; newR[id].bgColor = '';
+        setRecordedList(newR);
     }
 
     const loadRecording = async (recordedS, id) => {
@@ -322,7 +332,7 @@ export default function App() {
             if (recordedList[x].sound != null) {
                 await recordedList[x].sound.stopAsync();
                 await recordedList[x].sound.unloadAsync();
-                let playA = { ...soundList }
+                let playA = { ...recordedList }
                 playA[x].play = false;
                 recordedList(playA)
                 console.log("unloaded recording", x)
