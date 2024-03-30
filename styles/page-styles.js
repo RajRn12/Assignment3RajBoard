@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         width: 350,
         justifyContent:'center',
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 10,
+        marginBottom: 10,
     },
 
     recordPress: {
@@ -79,19 +79,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 15,
     },
-    ThirdView: {
+    thirdView: {
         backgroundColor: 'pink',
         borderWidth: 5,
         borderRadius: 10,
         borderStyle: 'dashed',
         borderBlockColor: 'black',
-        marginBottom: 10,
     },
     recordView: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: 350,
         justifyContent: 'center',
+        marginTop: 20,
+        marginBottom: 20,
     },
 
     button: {
@@ -102,9 +103,11 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 7,
         marginLeft: 5,
+        marginRight: 5,
+        marginTop: 7,
+        marginBottom: 7,
         justifyContent: 'center'
     },
-
 
 });
 export default styles;

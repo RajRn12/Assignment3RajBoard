@@ -10,12 +10,11 @@ import { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
 import guide from './images/question.jpg';
 import styles from './styles/page-styles';
-import masterStyles from './styles/master-style-sheet'
 import { StatusBar } from 'expo-status-bar';
 import * as SQLite from 'expo-sqlite';
 
 export default function App() {
-    const [db, setDb] = useState(null);
+    const [db, setDb] = useState();
     // dim to brighter
     const [dimColors, setDimColors] = useState(['rgba(255, 0, 0, 0.3)', 'rgba(10,255,0,0.3)', 'rgba(0,0,255,0.3)', 'rgba(0, 255, 242, 0.3)', 'rgba(255,255,0,0.3)'])
     const [fullColors, setFullColors] = useState(['rgba(255, 0, 0, 1)', 'rgba(0,255,0, 1)', 'rgba(0,0,255, 1)', 'rgba(0, 255, 242, 0.8)', 'rgba(255,255,0, 1)'])
@@ -23,30 +22,32 @@ export default function App() {
     const [recording, setRecording] = useState(null);
     const [permissionsResponse, requestPermission] = Audio.usePermissions();
 
-    // open the database at launch
+    // connect to the database
     useEffect(() => {
         let db = null;
-        // Expo SQLite does not work on web, so don't try it
         if (Platform.OS === 'web') {
             db = {
                 transaction: () => {
                     return {
-                        executeSql: () => { },
-                    };
-                },
-            };
-        } else {
-            db = SQLite.openDatabase('dab0.db');
+                        executeSql: () => {
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            db = SQLite.openDatabase('record3.db')
         }
         setDb(db);
+        console.log(db);
+        // create the table if it doesn't exist
         db.transaction((tx) => {
             tx.executeSql(
-                "create table if not exists recordings (id integer primary key NOT NULL, uri text,);"
+                "create table if not exists recordings (id integer primary key AUTOINCREMENT NOT NULL, uri text);"
             ),
                 (_, error) => console.log(error),
                 () => console.log("Table exists or was created")
         })
-        return db ? () => db.close : undefined; // close the database when we're done
     }, [])
 
     // Sounds
@@ -176,10 +177,12 @@ export default function App() {
             : undefined;
     }, [soundList.music])
 
-
+    // limit on recording
+    const [limit, setLimit] = useState(0);
     // recordings
     const startRecording = async () => {
         try {
+            if (limit < 15) {
             // request permission to use the mic
             if (permissionsResponse.status !== 'granted') {
                 console.log('Requesting permissions.');
@@ -192,12 +195,16 @@ export default function App() {
                 playsInSilentModeIOS: true,
             });
 
-            console.log('Starting recording...');
-            const { recording } = await Audio.Recording.createAsync(
-                Audio.RecordingOptionsPresets.HIGH_QUALITY
-            );
-            setRecording(recording);
-            console.log('...recording');
+                console.log('Starting recording...');
+                const { recording } = await Audio.Recording.createAsync(
+                    Audio.RecordingOptionsPresets.HIGH_QUALITY
+                );
+                setRecording(recording);
+                console.log('...recording');
+            }
+            else {
+                Alert.alert("You have reached the limit: 15 recordings!");
+            }
         }
         catch (errorEvent) {
             console.error('Failed to startRecording(): ', errorEvent);
@@ -214,7 +221,8 @@ export default function App() {
 
             // save uri
             addRecording(uri)
-
+            setLimit(l => l + 1);
+            console.log("limit", limit);
             // forget the recording object
             setRecording(undefined);
 
@@ -227,13 +235,28 @@ export default function App() {
         }
     }
 
+    useEffect(() => {
+        return recording
+            ? () => {
+                recording.stopAndUnloadAsync()
+            }
+            : undefined;
+    }, [])
+
     // database
     const [recordings, setRecordings] = useState([]);
     const [updateRecordings, forceUpdate] = useState(0);
 
+    const [recordedList, setRecordedList] = useState([
+        { id: 1, sound: null, play: false, bgColor: '' }, { id: 2, sound: null, play: false, bgColor: '' }, { id: 3, sound: null, play: false, bgColor: '' }, { id: 4, sound: null, play: false, bgColor: '' }, { id: 5, sound: null, play: false, bgColor: '' },
+        { id: 6, sound: null, play: false, bgColor: '' }, { id: 7, sound: null, play: false, bgColor: '' }, { id: 8, sound: null, play: false, bgColor: '' }, { id: 9, sound: null, play: false, bgColor: '' }, { id: 10, sound: null, play: false, bgColor: '' },
+        { id: 11, sound: null, play: false, bgColor: '' }, { id: 12, sound: null, play: false, bgColor: '' }, { id: 13, sound: null, play: false, bgColor: '' }, { id: 14, sound: null, play: false, bgColor: '' }, { id: 15, sound: null, play: false, bgColor: '' },
+        { id: 16, sound: null, play: false, bgColor: '' },
+    ])
+
     //update when the database  changes [db, updateRecordings]
     useEffect(() => {
-        if (db) {
+        if (db != null) {
             db.transaction(
                 (tx) => {
                     tx.executeSql(
@@ -250,20 +273,19 @@ export default function App() {
         chooseRecordColor()
     }, [db, updateRecordings])
 
-   
     const addRecording = (uri) => {
-        db.transaction(
-            (tx) => {
-                tx.executeSql(
-                    "insert into recordings (uri) values (?)",
-                    [uri],
-                    () => console.log("added", uri),
-                    (_, error) => console.log(error)
-                )
-            },
-            (_, error) => console.log('addRecording() failed: ', error),
-            forceUpdate(f => f + 1)
-        )
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(
+                        "insert into recordings (uri) values (?)",
+                        [uri],
+                        () => console.log("added", uri),
+                        (_, error) => console.log(error)
+                    )
+                },
+                (_, error) => console.log('addRecording() failed: ', error),
+                forceUpdate(f => f + 1)
+            )
     }
 
     const deleteRecord = (id) => {
@@ -282,12 +304,6 @@ export default function App() {
         )
     }
 
-    const [recordedList, setRecordedList] = useState([
-        { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' },
-        { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' }, { sound: null, play: false, bgColor: '' },
-    ])
-
-
     const loadRecording = async (recordedS, id) => {
         chooseRecordColor(id);
         const { sound } = await Audio.Sound.createAsync({ uri: recordedS });
@@ -299,31 +315,35 @@ export default function App() {
         playRecording(id)
     }
 
-    // Functions for changing color of box depending on its playing state
+    const unloadRecorded = async () => {
+        let x = 0;
+        while (x < recordedList.length) {
+            // stop and unload
+            if (recordedList[x].sound != null) {
+                await recordedList[x].sound.stopAsync();
+                await recordedList[x].sound.unloadAsync();
+                let playA = { ...soundList }
+                playA[x].play = false;
+                recordedList(playA)
+                console.log("unloaded recording", x)
+            }
+            x++
+        }
+    }
+
+
+    // choose random color for recorded sound box
     function chooseRecordColor() {
         let i = 0;
         let newColor = { ...recordedList }
         while (i < recordedList.length) {
             if (recordedList[i].sound == null && recordedList[i].bgColor == '') {
                 let r = Math.floor(Math.random() * 5);
-                newColor[i].bgColor = dimColors[r];
+                newColor[i].bgColor = fullColors[r];
                 setRecordedList[newColor];
             }
             i++;
         }
-    }
-
-    function lightUpRecorded(id) {
-        let i = 0;
-        let newBright = { ...recordedList }
-        while (i < dimColors.length) {
-            if (recordedList[id].sound != null && recordedList[id].play == true && recordedList[id].bgColor == dimColors[i]) {
-                newBright[id].bgColor = fullColors[id]
-                setRecordedList(newBright);
-            }
-            i++;
-        }
-        forceUpdate(f => f + 1);
     }
 
     const playRecording = async (id) => {
@@ -345,6 +365,14 @@ export default function App() {
             setRecordedList[newRStop]
         }
     }
+
+    useEffect(() => {
+        return recordedList
+            ? () => {
+                unloadRecorded()
+            }
+            : undefined;
+    }, [recordedList.sound])
 
     return (
         <View style={styles.container}>
@@ -379,21 +407,17 @@ export default function App() {
                 <Pressable style={{ width: 20 }} onPress={() => showGuide(2)}><Image source={guide} style={styles.guide} /></Pressable>
             </View>
 
-            <View style={styles.ThirdView}>
+            <View style={styles.thirdView}>
                 <View style={styles.recordView}>
-                    <ScrollView style={masterStyles.ListArea}>
                         {recordings.map(
-                            ({ id, uri, play}) => {
+                            ({ id, uri}) => {
                                 return (
-                                    <View key={id} style={masterStyles.recordView}>
-                                        <Pressable style={[masterStyles.button, { backgroundColor: recordedList[id].bgColor }]} onPress={() => { (recordedList[id].play == false) ? loadRecording(uri, id) : stopPlayingRecording(id); lightUpRecorded(id) }} onLongPress={() => deleteRecord(id)}></Pressable>
-                                    </View>
+                                    <Pressable key={id} style={[styles.button, effect.glowTwo, { backgroundColor: recordedList[id].bgColor }]} onPress={() => { (recordedList[id].play == false) ? loadRecording(uri, id) : stopPlayingRecording(id); }} onLongPress={() => deleteRecord(id)}></Pressable>
                                 )
                             })
                         }
-                    </ScrollView>
-                 </View>
-            </View>
+                   </View>
+             </View>
             <StatusBar style="auto" />
         </View>
     );
@@ -405,6 +429,12 @@ const effect = StyleSheet.create({
         opacity: 3,
         borderRadius: 10,
         borderBlockColor: 'gold',
+    },
+    glowTwo: {
+        borderStyle: 'solid',
+        opacity: 3,
+        borderRadius: 5,
+        borderBlockColor: 'blue',
     }
 })
 
