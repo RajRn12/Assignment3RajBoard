@@ -21,8 +21,6 @@ export default function App() {
     // for recording
     const [recording, setRecording] = useState(null);
     const [permissionsResponse, requestPermission] = Audio.usePermissions();
-    // limit on recording
-    const [limit, setLimit] = useState();
 
     // connect to the database
     useEffect(() => {
@@ -174,7 +172,7 @@ export default function App() {
         loadSoundList()
         return soundList
             ? () => {
-                unloadSound() // Prevent
+                unloadSound() // Prevent sound from continue playing if App restarts or crashes
             }
             : undefined;
     }, [soundList.music])
@@ -267,18 +265,7 @@ export default function App() {
             )
         }
         chooseRecordColor()
-        ensureLimit();
     }, [db, updateRecordings])
-
-    const ensureLimit = () => {
-        let i = 0;
-        while (i < recordedList.length) {
-            if (recordedList[i].sound != null) {
-                setLimit(i);
-            }
-            i++;
-        }
-    }
 
     const addRecording = (uri) => {
             db.transaction(
@@ -322,6 +309,7 @@ export default function App() {
         let newR = { ...recordedList }
         newR[id].sound = sound;
         setRecordedList[newR]
+        console.log("loaded Recording ", id)
         playRecording(id)
     }
 
@@ -340,7 +328,6 @@ export default function App() {
             x++
         }
     }
-
 
     // choose random color for recorded sound box
     function chooseRecordColor() {
