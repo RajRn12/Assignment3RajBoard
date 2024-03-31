@@ -166,7 +166,7 @@ export default function App() {
         }
         if (num == 2) {
             Alert.alert("Info:",
-                "Colored Box means there is recorded sound for play and they are always repeated. Long Pressing the Box will delete the Box and its recording. You have only see 20 recorded boxes")
+                "Colored Box means there is recorded sound for play and they are always repeated. Long Pressing the Box will delete the Box and its recording. You can only have 20 recorded boxes")
         }
     }
 
