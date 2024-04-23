@@ -12,7 +12,7 @@ import guide from './images/question.jpg';
 import styles from './styles/page-styles';
 import { StatusBar } from 'expo-status-bar';
 import * as SQLite from 'expo-sqlite';
-
+import * as FileSystem from 'expo-file-system';
 export default function App() {
     const [db, setDb] = useState();
     // dim to brighter
@@ -77,6 +77,9 @@ export default function App() {
         }
     }
 
+
+    const [countRecord, setCountRecord] = useState(0)
+
     const stopRecording = async () => {
         try {
             // stop the actual recording
@@ -85,8 +88,9 @@ export default function App() {
             // save the recorded object location
             const uri = (recording.getURI());
 
+            setCountRecord(c => c + 1);
             // save uri
-            addRecording(uri)
+            moveAudioFile(uri, countRecord)
 
             // forget the recording object
             setRecording(undefined);
@@ -169,6 +173,8 @@ export default function App() {
             (_, error) => console.log('deleteRecord() failed: ', error),
             forceUpdate(f => f + 1)
         )
+        let uri = recordedList[id].sound
+        deleteAudioFile(uri)
         let newR = { ...recordedList }
         newR[id].sound = null; newR[id].play = false; newR[id].bgColor = '';
         setRecordedList(newR);
@@ -370,6 +376,32 @@ export default function App() {
             }
             : undefined;
     }, [soundList.music])
+
+
+    // Manage Recorded Files
+    async function moveAudioFile(uri, count) {
+        const fileInfo = await FileSystem.getInfoAsync(uri);
+        if (!fileInfo.exists) {
+            console.error("File doesn't exist!");
+            return;
+        }
+        let name = 'Recording' + count + '.mp3';
+        const newUri = FileSystem.documentDirectory + name;
+        await FileSystem.moveAsync({
+            from: uri,
+            to: newUri,
+        });
+        console.log('File moved to', newUri)
+        addRecording(newUri)
+    }
+    async function deleteAudioFile(uri) {
+        try {
+            await FileSystem.deleteAsync(uri);
+            console.log('File deleted successfully');
+        } catch (error) {
+            console.error('Error deleting file', error);
+        }
+    }
 
     return (
         <View style={styles.container}>
